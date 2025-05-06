@@ -6,17 +6,36 @@
 /*   By: lvargas- <lvargas-@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 14:19:35 by lvargas-          #+#    #+#             */
-/*   Updated: 2025/05/06 16:20:11 by lvargas-         ###   ########.fr       */
+/*   Updated: 2025/05/06 21:25:00 by lvargas-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
+
+char	*ft_strdup(const char *s)
+{
+	size_t	n;
+	char	*ptr;
+
+	n = 0;
+	ptr = (char *)malloc((ft_strlen(s) + 1) * sizeof(char));
+	if (!ptr)
+		return (NULL);
+	while (s[n])
+	{
+		ptr[n] = (char)s[n];
+		n++;
+	}
+	ptr[n] = '\0';
+	return (ptr);
+}
 
 char	*get_next_line(int fd)
 {
 	static char	*rest;
 	char		*buffer;
 	char		*next_line;
+	char	*new_read;
 	size_t		n;
 	size_t		line_size;
 	size_t		i;
@@ -24,47 +43,41 @@ char	*get_next_line(int fd)
 	size_t	bytes_read;
 	int	found_new_line;
 
-	buffer = malloc((BUFFER_SIZE + 1) * sizeof(char));
-	if (!buffer || fd == -1)
+	new_read = malloc((BUFFER_SIZE + 1) * sizeof(char));
+	if (!new_read || fd == -1)
 		return (NULL);
 	found_new_line = 0;
-	while (!found_new_line && (bytes_read = read(fd, buffer, BUFFER_SIZE)) > 0)
+	buffer = rest;
+	while (!found_new_line && (bytes_read = read(fd, new_read, BUFFER_SIZE)) > 0)
 	{
-		buffer[bytes_read] = '\0';
-		rest = ft_strjoin(rest, buffer);
-		if (ft_strchr(rest, '\n'))
+		new_read[bytes_read] = '\0';
+		buffer = ft_strjoin(buffer, new_read);
+		if (ft_strchr(buffer, '\n'))
 			found_new_line = 1;
+	}
+	if (bytes_read == 0 && buffer && *buffer != '\0')
+	{
+		next_line = ft_strdup(buffer);
+		rest = NULL;
+		return (next_line);
 	}
 	if (bytes_read == 0)
 		return (NULL);
 	n = 0;
 	line_size = 0;
-	if (rest)
+	while (buffer[n] != '\0' && buffer[n] != '\n')
 	{
-		while (rest[n++] != '\0')
-			line_size++;
-	}
-	n = 0;
-	while (buffer[n] != '\0' && buffer[n++] != '\n')
 		line_size++;
-	next_line = malloc((line_size + 1) * sizeof(char));
-	i = 0;
-	if (rest)
-	{
-		while (rest[i] != '\0')
-		{
-			next_line[i] = rest[i];
-			i++;
-		}
+		n++;
 	}
+	next_line = malloc((line_size + 1) * sizeof(char));
 	n = 0;
 	while (buffer[n] != '\n' && buffer[n] != '\0')
 	{
-		next_line[i + n] = buffer[n];
+		next_line[n] = buffer[n];
 		n++;
 	}
-	next_line[i + n] = '\0';
-	i = 0;
+	next_line[n] = '\0';
 	if (buffer[n] != '\0')
 	{
 		n++;
@@ -77,12 +90,14 @@ char	*get_next_line(int fd)
 			save++;
 		}
 		rest = malloc((line_size + 1) * sizeof(char));
+		i = 0;
 		while (buffer[n] != '\0')
 		{
 			rest[i] = buffer[n];
 			i++;
 			n++;
 		}
+		free(buffer);
 		rest[i] = '\0';
 	}
 	return (next_line);
@@ -147,9 +162,11 @@ char	*ft_strchr(const char *s, int c)
 	return ((char *)s);
 }
 
+
+
 int main(void)
 {
-    int fd = open("files/multiple_line_no_nl", O_RDONLY);
+    int fd = open("files/alternate_line_nl_with_nl", O_RDONLY);
     size_t n = 1;
 	char *line;
 
