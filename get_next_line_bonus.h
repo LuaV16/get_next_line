@@ -1,32 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   get_next_line_bonus.h                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lvargas- <lvargas-@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/08 16:05:18 by lvargas-          #+#    #+#             */
-/*   Updated: 2025/05/09 13:31:39 by lvargas-         ###   ########.fr       */
+/*   Created: 2025/05/07 18:51:51 by lvargas-          #+#    #+#             */
+/*   Updated: 2025/05/09 16:37:41 by lvargas-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#ifndef GET_NEXT_LINE_BONUS_H
+# define GET_NEXT_LINE_BONUS_H
 
-int	main(void)
-{
-	int fd;
-	size_t n;
-	char *line;
+# ifndef BUFFER_SIZE
+#  define BUFFER_SIZE 10
+# endif
 
-	fd = open("files/1char.txt", O_RDONLY);
-	n = 1;
-	line = get_next_line(fd);
-	while (line != NULL)
-	{
-		printf("Line %zu: %s", n, line);
-		n++;
-		free(line);
-		line = get_next_line(fd);
-	}
-	return (0);
-}
+# include <fcntl.h>
+# include <stdio.h>
+# include <stdlib.h>
+# include <unistd.h>
+
+char	*get_next_line(int fd);
+char	*ft_strchr(const char *s, int c);
+char	*ft_strjoin(char *s1, char *s2);
+size_t	ft_strlen(const char *s);
+char	*ft_strdup(const char *s);
+
+#endif

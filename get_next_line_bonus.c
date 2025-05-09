@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lvargas- <lvargas-@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/07 18:47:47 by lvargas-          #+#    #+#             */
-/*   Updated: 2025/05/09 17:18:33 by lvargas-         ###   ########.fr       */
+/*   Updated: 2025/05/09 16:55:19 by lvargas-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,10 +53,7 @@ void	fill_buffer(char *total_line, char **buffer)
 		n++;
 	remaining_len = ft_strlen(total_line + n);
 	if (*buffer)
-	{
 		free(*buffer);
-		*buffer = NULL;
-	}
 	*buffer = (char *)malloc((remaining_len + 1) * sizeof(char));
 	if (!*buffer)
 		return ;
@@ -122,22 +119,25 @@ char	*prepare_line(int fd, char *buffer)
 
 char	*get_next_line(int fd)
 {
-	static char	*buffer;
+	static char	*buffer[2048];
 	char		*new_line;
 	char		*total_line;
 
-	if (fd < 0 || BUFFER_SIZE <= 0)
+	if (fd < 0 || BUFFER_SIZE <= 0 || fd > 2048)
 		return (NULL);
-	total_line = prepare_line(fd, buffer);
+	total_line = prepare_line(fd, buffer[fd]);
 	if (!total_line || ft_strlen(total_line) == 0)
 	{
 		free(total_line);
-		free(buffer);
-		buffer = NULL;
-		return (buffer);
+		if (buffer[fd])
+		{
+			free(buffer[fd]);
+			buffer[fd] = NULL;
+		}
+		return (NULL);
 	}
 	new_line = get_new_line(total_line);
-	fill_buffer(total_line, &buffer);
+	fill_buffer(total_line, &buffer[fd]);
 	free(total_line);
 	return (new_line);
 }
